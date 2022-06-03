@@ -12,6 +12,7 @@
 #include "DI_CH08_1_1.h"
 #include "DI_CH08_1_2.h"
 #include "DI_CH08_1_3.h"
+#include "DI_CH08_1_4.h"
 
 #include "sensor_msgs/Image.h"
 #include "sensor_msgs/image_encodings.h"
@@ -266,6 +267,35 @@ int copyChannel8_DIA1_1_3(ifm_o3m_AlgoIFOutput_DIA1_1_3* p)
     return RESULT_OK;
 }
 
+// copy the data for DI structure version 1.4 into our internal structure
+int copyChannel8_DIA1_1_4(ifm_o3m_AlgoIFOutput_DIA1_1_4* p)
+{
+    if (p == NULL)
+        return RESULT_ERROR;
+
+    memcpy(&ifm_ros_msg.distance_data[0], p->distanceImageResult.distanceData, NUM_SENSOR_PIXELS*sizeof(*(p->distanceImageResult.distanceData)));
+    memcpy(&ifm_ros_msg.confidence[0], p->distanceImageResult.confidence, NUM_SENSOR_PIXELS*sizeof(*(p->distanceImageResult.confidence)));
+    memcpy(&ifm_ros_msg.amplitude[0], p->distanceImageResult.amplitude, NUM_SENSOR_PIXELS*sizeof(*(p->distanceImageResult.amplitude)));
+    memcpy(&ifm_ros_msg.x[0], p->distanceImageResult.X, NUM_SENSOR_PIXELS*sizeof(*(p->distanceImageResult.X)));
+    memcpy(&ifm_ros_msg.y[0], p->distanceImageResult.Y, NUM_SENSOR_PIXELS*sizeof(*(p->distanceImageResult.Y)));
+    memcpy(&ifm_ros_msg.z[0], p->distanceImageResult.Z, NUM_SENSOR_PIXELS*sizeof(*(p->distanceImageResult.Z)));
+
+    ifm_ros_msg.trans_x = p->distanceImageResult.cameraCalibration.transX;
+    ifm_ros_msg.trans_y = p->distanceImageResult.cameraCalibration.transY;
+    ifm_ros_msg.trans_z = p->distanceImageResult.cameraCalibration.transZ;
+    ifm_ros_msg.rot_x = p->distanceImageResult.cameraCalibration.rotX;
+    ifm_ros_msg.rot_y = p->distanceImageResult.cameraCalibration.rotY;
+    ifm_ros_msg.rot_z = p->distanceImageResult.cameraCalibration.rotZ;
+
+    ifm_ros_msg.height = p->distanceImageResult.sensorHeight;
+    ifm_ros_msg.width = p->distanceImageResult.sensorWidth;
+    ifm_ros_msg.available = p->distanceImageResult.available;
+
+    memcpy(&ifm_ros_msg.amplitude_normalization[0], p->distanceImageResult.amplitude_normalization, 4*sizeof(*(p->distanceImageResult.amplitude_normalization)));
+
+
+    return RESULT_OK;
+}
 
 // checks which version of the data it is and copies the data into our own structure.
 // You need this for every channel you want to process.
@@ -275,6 +305,7 @@ int processChannel8(void* buf, uint32_t size)
     ifm_o3m_AlgoIFOutput_DIA1_1_1* pDIA1_1_1;
     ifm_o3m_AlgoIFOutput_DIA1_1_2* pDIA1_1_2;
     ifm_o3m_AlgoIFOutput_DIA1_1_3* pDIA1_1_3;
+    ifm_o3m_AlgoIFOutput_DIA1_1_4* pDIA1_1_4;
 
     // Is this DI structure version 1.0?
     pDIA1_1_0 = ifm_o3m_ConvertBufferToLittleEndian_DIA1_1_0(buf, size);
@@ -294,23 +325,33 @@ int processChannel8(void* buf, uint32_t size)
         return RESULT_OK;
     }
 
-    // It wasn't a version 1.0 structure, so let's check if it's a version 1.1 structure
+    // It wasn't a version 1.1 structure, so let's check if it's a version 1.2 structure
     pDIA1_1_2 = ifm_o3m_ConvertBufferToLittleEndian_DIA1_1_2(buf, size);
     if (pDIA1_1_2)
     {
-        // It's a version 1.1 structure. Copy data from this structure
+        // It's a version 1.2 structure. Copy data from this structure
         copyChannel8_DIA1_1_2(pDIA1_1_2);
         return RESULT_OK;
     }
 
-    // It wasn't a version 1.0 structure, so let's check if it's a version 1.1 structure
+    // It wasn't a version 1.2 structure, so let's check if it's a version 1.3 structure
     pDIA1_1_3 = ifm_o3m_ConvertBufferToLittleEndian_DIA1_1_3(buf, size);
     if (pDIA1_1_3)
     {
-        // It's a version 1.1 structure. Copy data from this structure
+        // It's a version 1.3 structure. Copy data from this structure
         copyChannel8_DIA1_1_3(pDIA1_1_3);
         return RESULT_OK;
     }
+
+    // It wasn't a version 1.3 structure, so let's check if it's a version 1.4 structure
+    pDIA1_1_4 = ifm_o3m_ConvertBufferToLittleEndian_DIA1_1_4(buf, size);
+    if (pDIA1_1_4)
+    {
+        // It's a version 1.4 structure. Copy data from this structure
+        copyChannel8_DIA1_1_4(pDIA1_1_4);
+        return RESULT_OK;
+    }
+
 
     // For new versions you have to add the additional converts/copy hier.
 
