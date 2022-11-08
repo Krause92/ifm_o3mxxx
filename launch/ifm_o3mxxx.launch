@@ -1,11 +1,23 @@
 <?xml version="1.0"?>
 <launch>
-    <node name="ifm_o3mxxx" pkg="ifm_o3mxxx" type="ifm_o3mxxx_node" output="screen">
-        <param name="Port" value="42000" />
-        <param name="IP" value="255.255.255.255" />
-        <param name="OutDepthImageTopic" value="ifm_o3mxxx/depth/raw" />
-        <param name="PointCloudTopic" value="ifm_o3mxxx_pc" />
-        <param name="RawTopic" value="ifm_o3mxxx_raw" />
-        <param name="FrameID" value="world" />
+  <!-- Name of the node. All topics will be advertised under this name. -->
+  <arg name="name" default="ifm_o3m151"/>
+  <!-- Name of the node. All topics will be advertised under this name. -->
+  <arg name="port" default="42000"/>
+  <arg name="ip" default="255.255.225.255"/>
+  <arg name="depth_topic" default="depth/raw"/>
+  <arg name="point_cloud_topic" default="pc"/>
+  <arg name="raw_topic" default="raw"/>
+  <arg name="frame_id" default="ifm_frame" />
+  <arg name="namespace" default="$(arg name)" />
+  <arg name="tf_prefix" default="ifm03m" />
+
+    <node name="$(arg name)" pkg="ifm_o3mxxx" type="ifm_o3mxxx_node" output="screen">
+        <param name="Port" value="$(arg port)" />
+        <param name="IP" value="$(arg ip)" />
+        <param name="OutDepthImageTopic" value="$(arg namespace)/$(arg depth_topic)" />
+        <param name="PointCloudTopic" value="$(arg tf_prefix)/$(arg point_cloud_topic)" />
+        <param name="RawTopic" value="$(arg tf_prefix)/$(arg raw_topic)" />
+        <param name="FrameID" value="$(arg tf_prefix)/$(arg frame_id)" />
     </node>
 </launch>
