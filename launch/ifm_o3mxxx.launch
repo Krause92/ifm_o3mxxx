@@ -16,8 +16,9 @@
         <param name="Port" value="$(arg port)" />
         <param name="IP" value="$(arg ip)" />
         <param name="OutDepthImageTopic" value="$(arg namespace)/$(arg depth_topic)" />
-        <param name="PointCloudTopic" value="$(arg tf_prefix)/$(arg point_cloud_topic)" />
-        <param name="RawTopic" value="$(arg tf_prefix)/$(arg raw_topic)" />
-        <param name="FrameID" value="$(arg tf_prefix)/$(arg frame_id)" />
+        <param name="PointCloudTopic" value="$(arg namespace)/$(arg point_cloud_topic)" />
+        <param name="RawTopic" value="$(arg namespace)/$(arg raw_topic)" />
+	<param name="FrameID" value="$(arg frame_id)" />
+	<!--	<param name="FrameID" value="$(arg tf_prefix)/$(arg frame_id)" unless="$(eval tf_prefix=='')" /> -->
     </node>
 </launch>
